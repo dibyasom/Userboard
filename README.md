@@ -14,6 +14,17 @@ docker-compose up
 - [Explore](https://reskill.herokuapp.com/register)
   - // IDEALLY this API should implement authentication layer, but for easy Proof-of-Concept of registered users, it's OPEN.
 
+### Rate Limit to secure against DoS attacks
+* Set to 100 requests in each window.
+```javascript
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+```
+
+### Endpoint security.
+Basic vulnerability protection with helmet npm-package.
 ### Tasks accomplished successfully.
 * Users can provide email, fullname and an image file.
 * NodeJs saves the email, fullname to Mongo and image to local fs.
