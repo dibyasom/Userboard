@@ -1,0 +1,10 @@
+version: "3"
+services:
+  backend-dev:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+    - ./:/home/node/app
+    environment:
+      - MONGODB_CNXN_STR=$MONGODB_CNXN_STR
