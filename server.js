@@ -12,8 +12,8 @@ import { saveToDisk } from "./utils/fs-helper.mjs";
 
 // ---------------------------------------------------------------------
 // mongo-cnxn string.
-const cnxn_str =
-  "mongodb+srv://dibyasom:Rexu2020@cluster0.yjkez.mongodb.net/reskill?retryWrites=true&w=majority";
+const cnxn_str = process.env.MONGODB_CNXN_STR;
+
 import {
   addUserToMongo,
   getFromMongo,
