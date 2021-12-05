@@ -126,8 +126,8 @@ const init = async () => {
                 url.format({
                   pathname: "/status",
                   query: {
-                    valid: "t",
-                    name: req.body.name,
+                    status: "successful",
+                    msg: req.body.name,
                   },
                 })
               ),
@@ -154,15 +154,29 @@ const init = async () => {
     let isValid = req.query.status;
     let msg = req.query.msg;
     let icon = "times";
+
+    // Nav Link
+    let navLinkTitle = "Explore";
+    let navLinkIcon = "wpexplorer";
+    let navLink = "/explore";
+
     if (isValid === "successful") {
-      icon = "check";
       msg = `Good job ${msg}!`;
+      icon = "check";
+    } else {
+      navLink = "/register";
+      navLinkIcon = "plus";
+      navLinkTitle = "Try again";
     }
 
     res.render("status", {
       status: isValid,
       msg: msg,
       icon: icon,
+      navLink: navLink,
+      navLinkTitle,
+      navLinkTitle,
+      navLinkIcon: navLinkIcon,
     });
   });
 
