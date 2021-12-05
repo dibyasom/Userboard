@@ -40,8 +40,8 @@
                                     <h4 class="font-monospace" style="text-align: center;color: rgb(255,255,255);font-weight: bold;"> <%= item.name %> </h4>
                                     <p style="text-align: center;color: rgb(116,116,116);"><%= item.email %></p>
                                 </div>
-                                <div class="col">
-                                    <div class="text-center d-flex justify-content-md-center" style="padding: 10px;"><img class="rounded-circle img-fluid" src="assets/img/<%= item._id %>.png" width="100" height="100"></div>
+                                <div class="col" style="width: 150px; height: 150px;">
+                                    <div class="text-center d-flex justify-content-md-center" style="padding: 10px; height: 100%; width: 100%; object-fit: contain"><img class="rounded-circle img-fluid" src="assets/img/<%= item._id %>.png" ></div>
                                 </div>
                             </div>
                         </div>
