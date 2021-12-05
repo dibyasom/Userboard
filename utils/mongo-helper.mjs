@@ -16,6 +16,12 @@ export const deleteFromMongo = async (client, userId) => {
   collection.deleteOne({ _id: userId });
 };
 
+export const deleteAllFromMongo = async (client) => {
+  const db = await client.db("reskill");
+  const collection = await db.collection("users");
+  collection.remove({});
+};
+
 export const getFromMongo = async (client) => {
   const db = await client.db("reskill");
   const collection = await db.collection("users");

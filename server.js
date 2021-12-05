@@ -18,6 +18,7 @@ import {
   addUserToMongo,
   getFromMongo,
   deleteFromMongo,
+  deleteAllFromMongo,
 } from "./utils/mongo-helper.mjs";
 
 // ---------------------------------------------------------------------
@@ -188,6 +189,11 @@ const init = async () => {
     // res.status(200).json({ res: result }).end();
     res.render("explore", { users: result });
   });
+
+  // app.get("/clear-mongo", async (req, res) => {
+  //   await deleteAllFromMongo(client);
+  //   res.json({ msg: "done!" }).end();
+  // });
 
   // ---------------------------------------------------------------------
   // Start-server
