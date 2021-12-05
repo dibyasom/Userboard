@@ -30,26 +30,20 @@
     
     <!-- User Cards -->
     <section id="exploreUsers" style="margin-top: 80px;">
-        <ol>
-            <% users.forEach(function(item,index){ %>
-                <li>
-                    <div class="card" style="padding: 20px;margin: 10px;background: rgb(0,0,0);">
-                        <div class="card-body">
-                            <div class="row d-md-flex align-items-md-center">
-                                <div class="col">
-                                    <h4 class="font-monospace" style="text-align: center;color: rgb(255,255,255);font-weight: bold;"> <%= item.name %> </h4>
-                                    <p style="text-align: center;color: rgb(116,116,116);"><%= item.email %></p>
-                                </div>
-                                <div class="col">
-                                    <div class="text-center d-flex justify-content-md-center" style="padding: 10px;"><img class="rounded-circle img-fluid" src="assets/img/<%= item._id %>.png" width="100" height="100"></div>
-                                </div>
-                            </div>
+            <div class="card" style="padding: 20px;margin: 10px;background: rgb(0,0,0);">
+                <div class="card-body">
+                    <div class="row d-md-flex align-items-md-center">
+                        <div class="col">
+                            <h4 class="font-monospace" style="text-align: center;color: rgb(255,255,255);font-weight: bold;"> User registration <%= status %> </h4>
+                            <p style="text-align: center;color: rgb(116,116,116);"><%= msg %></p>
+                        </div>
+                        <div class="col">
+                            <div class="text-center d-flex justify-content-md-center" style="padding: 10px;"><i class="fa fa-<%= icon %>" style="color: rgb(173,196,220);font-size: 50px;"></i></div>
                         </div>
                     </div>
-                </li>
-            <% }) %>
-            </ol>
-    <section></section>
+                </div>
+            </div>
+        </section>
 
     <footer class="footer-basic">
         <div class="social"><a href="https://www.instagram.com/dibyasom/?hl=bg"><i class="icon ion-social-instagram"></i></a><a href="https://github.com/vhaegar1526"><i class="icon ion-social-github"></i></a><a href="https://twitter.com/flavoureddd"><i class="icon ion-social-twitter"></i></a><a href="https://www.linkedin.com/in/dibyasom-puhan-433852190/"><i class="icon ion-social-linkedin"></i></a></div>

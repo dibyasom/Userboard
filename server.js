@@ -1,5 +1,6 @@
 // IMPORTS
 import process from "process";
+import url from "url";
 
 import multer from "multer";
 const upload = multer({ dest: "./tmp/" });
@@ -7,12 +8,17 @@ const upload = multer({ dest: "./tmp/" });
 import crypto from "crypto";
 
 import { MongoClient } from "mongodb";
-import { fsHelper } from "./utils/fs-helper.mjs";
+import { saveToDisk } from "./utils/fs-helper.mjs";
 
 // ---------------------------------------------------------------------
 // mongo-cnxn string.
 const cnxn_str =
   "mongodb+srv://dibyasom:Rexu2020@cluster0.yjkez.mongodb.net/reskill?retryWrites=true&w=majority";
+import {
+  addUserToMongo,
+  getFromMongo,
+  deleteFromMongo,
+} from "./utils/mongo-helper.mjs";
 
 // ---------------------------------------------------------------------
 import path from "path";
@@ -65,72 +71,107 @@ const init = async () => {
 
   await client.connect();
 
-  // Mongo-Helper
   // ---------------------------------------------------------------------
-  const addUserToMongo = async (client, newUser, errRes) => {
-    const db = await client.db("reskill");
-    const collection = await db.collection("users");
-
-    collection.insertOne(newUser, function (err, res) {
-      if (err) errRes(err);
-      console.log("1 record inserted.");
-    });
-  };
-
-  const getTenFromMongo = async (client) => {
-    const db = await client.db("reskill");
-    const collection = await db.collection("users");
-
-    return await collection.find().limit(20).toArray();
-  };
-
-  // ---------------------------------------------------------------------
-
+  // Renders input form.
   app.get("/register", (req, res) => {
     res.render("form");
   });
 
+  // ---------------------------------------------------------------------
+  // Process form data on submission.
+  // // 1. Save username, emailid to Mongo.
+  // // 2. Save image to disk if mongo action was successfully executed.
   app.post("/register", upload.single("avatar"), (req, res) => {
     // Validate Data.
     if (req.body.email && req.body.email !== "") {
+      // Create a Unique Hash for Mongo _id
       var emailHash = crypto
         .createHash("md5")
         .update(req.body.email)
         .digest("hex");
 
       // ''' Add user-email to Mongo, with the hash as ID. '''
-      try {
-        addUserToMongo(
-          client,
-          { _id: emailHash, email: req.body.email, name: req.body.name },
-          (err) => console.log(err)
-        );
+      addUserToMongo(
+        client,
+        { _id: emailHash, email: req.body.email, name: req.body.name },
+        // Callback for failed MongoDB push.
+        (err) => {
+          console.log(`Saving user-email failed | @${req.body.email}`);
+          let err_stack = err.stack.split("\n", 1).join("");
 
-        // Save image to fs.
-        try {
-          fsHelper(
+          let msg = err_stack;
+
+          // Check error-code if user is already registered.
+          if (err_stack.includes("E11000")) msg = "User is already registered!";
+
+          res.redirect(
+            url.format({
+              pathname: "/status",
+              query: {
+                status: "failed",
+                msg: msg,
+              },
+            })
+          );
+        },
+        // Save image to Disk, if Mongo-action is successful.
+        () =>
+          saveToDisk(
             emailHash,
             __dirname,
             req,
-            (msg) => res.json({ attr: req.body, msg: msg }).end(),
-            (err, code) => res.status(code).json({ err: err }).end()
-          );
-        } catch (err) {
-          // Writing user-avatar to fs failed. //
-          console.log(`Saving user-avatar failed | @${req.body.email}`, err);
-        }
-      } catch (err) {
-        //   Adding user-email to Mongo failed. //
-        console.log(`Saving user-email failed | @${req.body.email}`, err);
-      }
+            // Callback for successful writeToDisk
+            () =>
+              res.redirect(
+                url.format({
+                  pathname: "/status",
+                  query: {
+                    valid: "t",
+                    name: req.body.name,
+                  },
+                })
+              ),
+            // Callback for failed writeToDisk
+            (err, code) => {
+              // Delete from Mongo if Write fails.
+              deleteFromMongo(client, emailHash);
+              res.redirect(
+                url.format({
+                  pathname: "/status",
+                  query: { status: "failed", msg: err },
+                })
+              );
+            }
+          )
+      );
     }
   });
 
   // ---------------------------------------------------------------------
+  // Renders current status, [User registration failed/succeded.]
+  app.get("/status", (req, res) => {
+    // Get attributes for status page.
+    let isValid = req.query.status;
+    let msg = req.query.msg;
+    let icon = "times";
+    if (isValid === "successful") {
+      icon = "check";
+      msg = `Good job ${msg}!`;
+    }
+
+    res.render("status", {
+      status: isValid,
+      msg: msg,
+      icon: icon,
+    });
+  });
+
+  // ---------------------------------------------------------------------
+  // Display all registered users.
+  // ?? IDEALLY this API should implement authentication layer, but for easy Proof-of-Concept of registered users, it's OPEN.
   app.get("/explore", async (req, res) => {
-    let result = await getTenFromMongo(client);
+    let result = await getFromMongo(client);
     // res.status(200).json({ res: result }).end();
-    console.log(result);
     res.render("explore", { users: result });
   });
 
@@ -143,7 +184,7 @@ const init = async () => {
   // ---------------------------------------------------------------------
 
   const cleanup = (event) => {
-    //   Terminate mongo cnxn.
+    //   Terminate mongo cnxn during exit().
     client.close();
     process.exit();
   };
